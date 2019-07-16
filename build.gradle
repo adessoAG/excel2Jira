@@ -11,13 +11,16 @@ sourceCompatibility = '1.8'
 
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 dependencies {
 
 	compile group: 'org.apache.poi', name: 'poi', version: apache_poi_version
-	runtime group: 'com.netflix.feign', name: 'feign-core', version: feign_version
+	compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: feign_version
 
+	compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-xml-provider'
+	
 	annotationProcessor("org.projectlombok:lombok:$lombok_version")
 	compileOnly("org.projectlombok:lombok:$lombok_version")
 
