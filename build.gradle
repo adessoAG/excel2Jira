@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
 
+	compile group: 'org.apache.poi', name: 'poi-ooxml', version: apache_poi_version
 	compile group: 'org.apache.poi', name: 'poi', version: apache_poi_version
 	runtime group: 'com.netflix.feign', name: 'feign-core', version: feign_version
 
