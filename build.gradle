@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
 
+	compile group: 'org.apache.poi', name: 'poi-ooxml', version: apache_poi_version
 	compile group: 'org.apache.poi', name: 'poi', version: apache_poi_version
 	compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: feign_version
 

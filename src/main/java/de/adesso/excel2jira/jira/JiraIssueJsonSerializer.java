@@ -12,21 +12,24 @@ public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
     @Override
     public void serialize(JiraIssue value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeObjectField("update", new Object());
 
-        gen.writeFieldName("fileds");
+        gen.writeFieldName("update");
+        gen.writeStartObject();
+        gen.writeEndObject();
+
+        gen.writeFieldName("fields");
         gen.writeStartObject();
 
         gen.writeFieldName("project");
         gen.writeStartObject();
-        gen.writeNumberField("id", value.getFields().getProjectId());
+        gen.writeStringField("id", String.valueOf(value.getFields().getProjectId()));
         gen.writeEndObject();
 
         gen.writeStringField("summary", value.getFields().getSummary());
 
-        gen.writeFieldName("issueType");
+        gen.writeFieldName("issuetype");
         gen.writeStartObject();
-        gen.writeNumberField("id", value.getFields().getIssueType());
+        gen.writeStringField("id", String.valueOf(value.getFields().getIssueType()));
         gen.writeEndObject();
 
         gen.writeFieldName("assignee");
@@ -36,9 +39,10 @@ public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
 
         gen.writeFieldName("priority");
         gen.writeStartObject();
-        gen.writeNumberField("id", value.getFields().getPriority());
+        gen.writeStringField("id", String.valueOf(value.getFields().getPriority()));
         gen.writeEndObject();
 
+        //customfield_10321
         gen.writeObjectField("labels", value.getFields().getLabels());
 
         gen.writeEndObject();

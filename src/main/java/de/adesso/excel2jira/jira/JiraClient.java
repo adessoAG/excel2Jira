@@ -22,7 +22,7 @@ public interface JiraClient {
     User getUser(@RequestHeader("Authorization") String auth, @PathVariable(name = "username") String username);
 
     @PostMapping("/issue/bulk")
-    Long createIssues(@RequestHeader("Authorization") String auth, @RequestBody List<JiraIssue> issues);
+    String createIssues(@RequestHeader("Authorization") String auth, @RequestBody JiraIssueListWrapper issues);
 
 
     @GetMapping("/priority")

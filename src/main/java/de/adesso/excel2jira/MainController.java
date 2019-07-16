@@ -1,14 +1,17 @@
 package de.adesso.excel2jira;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adesso.excel2jira.excel.ExcelMapper;
 import de.adesso.excel2jira.excel.domain.Issue;
 import de.adesso.excel2jira.jira.JiraClient;
+import de.adesso.excel2jira.jira.JiraIssueListWrapper;
 import de.adesso.excel2jira.jira.domain.*;
+import feign.FeignException;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import org.apache.commons.codec.binary.Base64;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,20 +25,20 @@ public class MainController implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         //Map xlsx file to a List of Issues
-        List<Issue> issues = new ExcelMapper().map();
+        String path = "C:\\Users\\atanasov\\Desktop\\issues.xlsx";
+        List<Issue> issues = new ExcelMapper().map(path);
 
         //Get the available projects for the user
-        String usernameAndPassword = "atanasov:";
+        String usernameAndPassword = "atanasov:/testForJira123";
 
         String auth = "Basic " + new String(Base64.encodeBase64(usernameAndPassword.getBytes()));
         List<Project> projects = jiraClient.getProjects(auth);
-
 
         //Map the issues to a list of Jira issues
         List<JiraIssue> jiraIssues = mapToJiraIssues(issues, projects, auth);
 
         //Send the issues off to JIRA
-        jiraClient.createIssues(auth, jiraIssues);
+        jiraClient.createIssues(auth, new JiraIssueListWrapper(jiraIssues));
     }
 
     private List<JiraIssue> mapToJiraIssues(List<Issue> issues, List<Project> projects, String auth) throws UnableToMapIssueException {
@@ -112,6 +115,8 @@ public class MainController implements ApplicationRunner {
 
             //Set Labels
             jiraIssue.getFields().setLabels(issue.getLabels());
+
+            jiraIssue.getFields().setSummary(issue.getSummary());
             resultList.add(jiraIssue);
         }
 
