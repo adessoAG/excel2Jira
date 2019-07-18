@@ -3,8 +3,6 @@ package de.adesso.excel2jira.excel;
 import de.adesso.excel2jira.UnableToParseFileException;
 import de.adesso.excel2jira.excel.domain.Issue;
 import org.apache.poi.ss.usermodel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +12,11 @@ import java.util.List;
 
 public class ExcelMapper {
 
-    private static Logger logger = LoggerFactory.getLogger(ExcelMapper.class);
+    /**
+     * Private constructor to hide the default one.
+     */
+    private ExcelMapper (){
+    }
 
     /**
      *

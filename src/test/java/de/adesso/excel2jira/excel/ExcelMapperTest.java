@@ -13,7 +13,7 @@ public class ExcelMapperTest {
 
     @Test
     public void parseFileSuccessfully() {
-        List<Issue> issues = new ExcelMapper().map(TEST_FILE_PATH);
+        List<Issue> issues = ExcelMapper.map(TEST_FILE_PATH);
 
         Assertions.assertThat(issues).hasSize(3);
 
@@ -31,6 +31,6 @@ public class ExcelMapperTest {
 
     @Test
     public void shouldThrowExceptionWhenFileDoesNotExist() {
-        Assertions.assertThatThrownBy(() -> new ExcelMapper().map("incorrect-file-path")).isInstanceOf(UnableToParseFileException.class);
+        Assertions.assertThatThrownBy(() -> ExcelMapper.map("incorrect-file-path")).isInstanceOf(UnableToParseFileException.class);
     }
 }

@@ -54,8 +54,6 @@ public class JiraIssueMapper {
             } catch (FeignException.NotFound e){
                 jiraIssue.setAssignee(null);
             }
-
-
             resultList.add(jiraIssue);
         }
         return resultList;

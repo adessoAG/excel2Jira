@@ -1,6 +1,5 @@
 package de.adesso.excel2jira;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adesso.excel2jira.excel.ExcelMapper;
 import de.adesso.excel2jira.excel.domain.Issue;
 import de.adesso.excel2jira.jira.JiraClient;
