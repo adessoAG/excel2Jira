@@ -14,14 +14,14 @@ import java.util.List;
 
 public class ExcelMapper {
 
-    private Logger logger = LoggerFactory.getLogger(ExcelMapper.class);
+    private static Logger logger = LoggerFactory.getLogger(ExcelMapper.class);
 
     /**
      *
      * @param filename path of the file to parse
      * @return list of issue objects that will be uploaded in jira
      */
-    public List<Issue> map(String filename) {
+    public static List<Issue> map(String filename) {
         List<Issue> issues = new ArrayList<>();
 
         try {
@@ -54,7 +54,6 @@ public class ExcelMapper {
             workbook.close();
             return issues;
         } catch (IOException | IllegalStateException e) {
-            logger.error(e.getMessage());
             throw new UnableToParseFileException(e.getMessage());
         }
     }
@@ -64,7 +63,7 @@ public class ExcelMapper {
      * @param cellValue the string value in the cell, not yet separated
      * @return List of string values, separated by ','
      */
-    private List<String> getListFromString(String cellValue) {
+    private static List<String> getListFromString(String cellValue) {
         List<String> strings = new ArrayList<>(Arrays.asList(cellValue.split(",")));
         strings.removeIf(String::isEmpty);
         strings.replaceAll(String::trim);

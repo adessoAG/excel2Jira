@@ -22,28 +22,40 @@ public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
 
         gen.writeFieldName("project");
         gen.writeStartObject();
-        gen.writeStringField("id", String.valueOf(value.getFields().getProjectId()));
+        gen.writeStringField("id", String.valueOf(value.getProjectId()));
         gen.writeEndObject();
 
-        gen.writeStringField("summary", value.getFields().getSummary());
+        gen.writeStringField("summary", value.getSummary());
 
         gen.writeFieldName("issuetype");
         gen.writeStartObject();
-        gen.writeStringField("id", String.valueOf(value.getFields().getIssueType()));
+        gen.writeStringField("id", String.valueOf(value.getIssueType()));
         gen.writeEndObject();
 
-        gen.writeFieldName("assignee");
-        gen.writeStartObject();
-        gen.writeStringField("name", value.getFields().getAssignee());
-        gen.writeEndObject();
+        if(value.getAssignee() != null) {
+            gen.writeFieldName("assignee");
+            gen.writeStartObject();
+            gen.writeStringField("name", value.getAssignee());
+            gen.writeEndObject();
+        }
 
         gen.writeFieldName("priority");
         gen.writeStartObject();
-        gen.writeStringField("id", String.valueOf(value.getFields().getPriority()));
+        gen.writeStringField("id", String.valueOf(value.getPriority()));
         gen.writeEndObject();
 
         //customfield_10321
-        gen.writeObjectField("labels", value.getFields().getLabels());
+        gen.writeObjectField("customfield_10321", value.getLabels());
+        //gen.writeObjectField("labels", value.getLabels());
+
+        gen.writeFieldName("fixVersions");
+        gen.writeStartArray();
+        for(Long fixVersion : value.getVersions()){
+            gen.writeStartObject();
+            gen.writeStringField("id", String.valueOf(fixVersion));
+            gen.writeEndObject();
+        }
+        gen.writeEndArray();
 
         gen.writeEndObject();
         gen.writeEndObject();
