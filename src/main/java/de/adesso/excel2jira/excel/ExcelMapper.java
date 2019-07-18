@@ -1,8 +1,10 @@
 package de.adesso.excel2jira.excel;
 
+import de.adesso.excel2jira.UnableToParseFileException;
 import de.adesso.excel2jira.excel.domain.Issue;
-
 import org.apache.poi.ss.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,34 +14,56 @@ import java.util.List;
 
 public class ExcelMapper {
 
-    public List<Issue> map(String filename) throws IOException {
+    private Logger logger = LoggerFactory.getLogger(ExcelMapper.class);
+
+    /**
+     *
+     * @param filename path of the file to parse
+     * @return list of issue objects that will be uploaded in jira
+     */
+    public List<Issue> map(String filename) {
         List<Issue> issues = new ArrayList<>();
-        Workbook workbook = WorkbookFactory.create(new File(filename));
-        Sheet sheet = workbook.getSheetAt(0);
-        DataFormatter dataFormatter = new DataFormatter();
 
-        int numberOfRows = sheet.getPhysicalNumberOfRows();
+        try {
+            Workbook workbook = WorkbookFactory.create(new File(filename));
 
-        for (int i = 1; i < numberOfRows - 1; i++) {
-            Row row = sheet.getRow(i);
-            Issue issue = new Issue();
+            //The first sheet in the .xlsx file is the one which contains the jira issues
+            Sheet sheet = workbook.getSheetAt(0);
+            DataFormatter dataFormatter = new DataFormatter();
+            int firstRowNum = sheet.getFirstRowNum();
+            int lastRowNum = sheet.getLastRowNum();
 
-            issue.setProjectName(dataFormatter.formatCellValue(row.getCell(0)));
-            issue.setSummary(dataFormatter.formatCellValue(row.getCell(1)));
-            issue.setIssueType(dataFormatter.formatCellValue(row.getCell(2)));
-            issue.setPriority(dataFormatter.formatCellValue(row.getCell(3)));
-            issue.setAssignee(dataFormatter.formatCellValue(row.getCell(4)));
-            issue.setFixVersions(getListFromString(dataFormatter.formatCellValue(row.getCell(5))));
-            issue.setDescription(dataFormatter.formatCellValue(row.getCell(6)));
-            issue.setLabels(getListFromString(dataFormatter.formatCellValue(row.getCell(7))));
+            // iterate from the firstRowNum + 1, because the first row contains the headings of issue fields
+            for (int i = firstRowNum + 1; i <= lastRowNum; i++) {
+                Row row = sheet.getRow(i);
+                int firstCellNum = row.getFirstCellNum();
+                Issue issue = new Issue();
 
-            issues.add(issue);
+                issue.setProjectName(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setSummary(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setIssueType(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setPriority(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setAssignee(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setFixVersions(getListFromString(dataFormatter.formatCellValue(row.getCell(firstCellNum++))));
+                issue.setDescription(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setLabels(getListFromString(dataFormatter.formatCellValue(row.getCell(firstCellNum))));
+
+                issues.add(issue);
+            }
+
+            workbook.close();
+            return issues;
+        } catch (IOException | IllegalStateException e) {
+            logger.error(e.getMessage());
+            throw new UnableToParseFileException(e.getMessage());
         }
-
-        workbook.close();
-        return issues;
     }
 
+    /**
+     *
+     * @param cellValue the string value in the cell, not yet separated
+     * @return List of string values, separated by ','
+     */
     private List<String> getListFromString(String cellValue) {
         List<String> strings = new ArrayList<>(Arrays.asList(cellValue.split(",")));
         strings.removeIf(String::isEmpty);

@@ -1,13 +1,13 @@
 package de.adesso.excel2jira;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adesso.excel2jira.excel.ExcelMapper;
 import de.adesso.excel2jira.excel.domain.Issue;
 import de.adesso.excel2jira.jira.JiraClient;
 import de.adesso.excel2jira.jira.JiraIssueListWrapper;
 import de.adesso.excel2jira.jira.domain.*;
-import feign.FeignException;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -19,13 +19,28 @@ import java.util.List;
 @Component
 public class MainController implements ApplicationRunner {
 
+    private Logger logger = LoggerFactory.getLogger(MainController.class);
+
     @Autowired
     private JiraClient jiraClient;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
+        /*if (!args.containsOption("--file")) {
+            logger.error("No filepath specified in command line arguments.");
+            return;
+        }
+        if (!args.containsOption("--url")) {
+            logger.error("No url specified in command line arguments.");
+            return;
+        }
+
+        String filepath = args.getOptionValues("--file").get(0);
+        String url = args.getOptionValues("--url").get(0);*/
+
         //Map xlsx file to a List of Issues
-        String path = "C:\\Users\\atanasov\\Desktop\\issues.xlsx";
+        String path = "C:\\Users\\kkrause\\Desktop\\issues.xlsx";
         List<Issue> issues = new ExcelMapper().map(path);
 
         //Get the available projects for the user
@@ -76,17 +91,17 @@ public class MainController implements ApplicationRunner {
 
             //Set the fix versions
             List<Long> fixVersionIds = new ArrayList<>();
-            for(String fixVesrionString : issue.getFixVersions()){
+            for(String fixVersionString : issue.getFixVersions()){
                 boolean fixVersionFound = false;
                 for(FixVersion fixVersion : issueProject.getVersions()){
-                    if(fixVersion.getName().equals(fixVesrionString)){
+                    if(fixVersion.getName().equals(fixVersionString)){
                         fixVersionFound = true;
                         fixVersionIds.add(fixVersion.getId());
                         break;
                     }
                 }
                 if(!fixVersionFound){
-                    throw new UnableToMapIssueException("No fixVersion with name " + fixVesrionString + " found in project " + projectName);
+                    throw new UnableToMapIssueException("No fixVersion with name " + fixVersionString + " found in project " + projectName);
                 }
             }
             jiraIssue.getFields().setVersions(fixVersionIds);
@@ -116,6 +131,7 @@ public class MainController implements ApplicationRunner {
             //Set Labels
             jiraIssue.getFields().setLabels(issue.getLabels());
 
+            //Set Summary
             jiraIssue.getFields().setSummary(issue.getSummary());
             resultList.add(jiraIssue);
         }

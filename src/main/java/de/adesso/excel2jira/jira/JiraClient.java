@@ -1,6 +1,5 @@
 package de.adesso.excel2jira.jira;
 
-import de.adesso.excel2jira.jira.domain.JiraIssue;
 import de.adesso.excel2jira.jira.domain.Priority;
 import de.adesso.excel2jira.jira.domain.Project;
 import de.adesso.excel2jira.jira.domain.User;
@@ -23,7 +22,6 @@ public interface JiraClient {
 
     @PostMapping("/issue/bulk")
     String createIssues(@RequestHeader("Authorization") String auth, @RequestBody JiraIssueListWrapper issues);
-
 
     @GetMapping("/priority")
     List<Priority> getPriorities(@RequestHeader("Authorization") String auth);
