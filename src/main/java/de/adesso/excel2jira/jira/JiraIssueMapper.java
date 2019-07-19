@@ -1,6 +1,5 @@
 package de.adesso.excel2jira.jira;
 
-import de.adesso.excel2jira.UnableToMapIssueException;
 import de.adesso.excel2jira.excel.domain.Issue;
 import de.adesso.excel2jira.jira.domain.JiraIssue;
 import de.adesso.excel2jira.jira.domain.Priority;
@@ -32,13 +31,21 @@ public class JiraIssueMapper {
      * Maps a list of Issue objects to a list of JiraIssue objects.
      * @param jiraClient An instance of a jira client, needed to get project and users from the server.
      * @param issues A list of Issue objects to map.
-     * @param projects The projects available to the user with @auth
-     * @param priorities The priorities available on the server
      * @param auth The auth token required to communicate with the server.
      * @return A list of JiraIssue objects, that can be directly uploaded to JIRA.
      * @throws UnableToMapIssueException Thrown if an error occurs during the mapping. (Name does not map to id)
+     * @throws AuthorizationException Thrown if the supplied credentials are invalid.
      */
-    public static List<JiraIssue> map(URI url, JiraClient jiraClient, List<Issue> issues, List<Project> projects, List<Priority> priorities, String auth) throws UnableToMapIssueException {
+    public static List<JiraIssue> map(URI url, JiraClient jiraClient, List<Issue> issues, String auth) throws UnableToMapIssueException, AuthorizationException {
+
+        List<Project> projects;
+        try {
+            projects = jiraClient.getProjects(url, auth);
+        } catch (FeignException.Unauthorized e){
+            throw new AuthorizationException("Username or password wrong!");
+        }
+        List<Priority> priorities = jiraClient.getPriorities(url, auth);
+
         List<JiraIssue> resultList = new ArrayList<>();
         for(Issue issue : issues){
             JiraIssue jiraIssue = new JiraIssue();

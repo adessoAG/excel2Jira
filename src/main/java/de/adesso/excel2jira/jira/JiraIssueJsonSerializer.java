@@ -53,14 +53,17 @@ public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
         if(value.getLabels() != null && !value.getLabels().isEmpty()) {
             gen.writeObjectField("labels", value.getLabels());
         }
-        gen.writeFieldName("fixVersions");
-        gen.writeStartArray();
-        for(Long fixVersion : value.getVersions()){
-            gen.writeStartObject();
-            gen.writeStringField("id", String.valueOf(fixVersion));
-            gen.writeEndObject();
+
+        if(value.getVersions() != null && !value.getVersions().isEmpty()) {
+            gen.writeFieldName("fixVersions");
+            gen.writeStartArray();
+            for (Long fixVersion : value.getVersions()) {
+                gen.writeStartObject();
+                gen.writeStringField("id", String.valueOf(fixVersion));
+                gen.writeEndObject();
+            }
+            gen.writeEndArray();
         }
-        gen.writeEndArray();
 
         gen.writeEndObject();
         gen.writeEndObject();

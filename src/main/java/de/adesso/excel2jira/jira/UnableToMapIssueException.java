@@ -1,4 +1,4 @@
-package de.adesso.excel2jira;
+package de.adesso.excel2jira.jira;
 
 import de.adesso.excel2jira.excel.domain.Issue;
 import lombok.Getter;

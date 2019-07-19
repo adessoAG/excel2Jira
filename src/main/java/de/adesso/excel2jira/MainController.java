@@ -1,13 +1,14 @@
 package de.adesso.excel2jira;
 
 import de.adesso.excel2jira.excel.ExcelMapper;
+import de.adesso.excel2jira.excel.UnableToParseFileException;
 import de.adesso.excel2jira.excel.domain.Issue;
+import de.adesso.excel2jira.jira.AuthorizationException;
 import de.adesso.excel2jira.jira.JiraClient;
 import de.adesso.excel2jira.jira.JiraIssueMapper;
+import de.adesso.excel2jira.jira.UnableToMapIssueException;
 import de.adesso.excel2jira.jira.domain.JiraIssue;
 import de.adesso.excel2jira.jira.domain.JiraIssueListWrapper;
-import de.adesso.excel2jira.jira.domain.Priority;
-import de.adesso.excel2jira.jira.domain.project.Project;
 import feign.FeignException;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -32,8 +33,7 @@ public class MainController implements ApplicationRunner {
     private JiraClient jiraClient;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-
+    public void run(ApplicationArguments args) {
 
         if (args.getNonOptionArgs().contains("help")) {
             logHelp();
@@ -85,21 +85,15 @@ public class MainController implements ApplicationRunner {
         String usernameAndPassword = username + ":" + password;
         String auth = "Basic " + new String(Base64.encodeBase64(usernameAndPassword.getBytes()));
 
-        List<Project> projects;
-        try {
-            projects = jiraClient.getProjects(determinedBasePathUri, auth);
-        } catch (FeignException.Unauthorized e){
-            logger.error("Username or password wrong!");
-            return;
-        }
-        List<Priority> priorities = jiraClient.getPriorities(determinedBasePathUri, auth);
-
         List<JiraIssue> jiraIssues;
         try {
-            jiraIssues = JiraIssueMapper.map(determinedBasePathUri, jiraClient, issues, projects,priorities, auth);
+            jiraIssues = JiraIssueMapper.map(determinedBasePathUri, jiraClient, issues, auth);
         }catch (UnableToMapIssueException e){
             logger.error(String.format("Error processing item: %s Error is: %s", e.getIssue().toString(), e.getMessage()));
             logger.error("Aborting! No issues have been created!");
+            return;
+        } catch (AuthorizationException e) {
+            logger.error(e.getMessage());
             return;
         }
 

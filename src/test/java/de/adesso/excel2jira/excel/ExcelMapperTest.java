@@ -1,6 +1,5 @@
 package de.adesso.excel2jira.excel;
 
-import de.adesso.excel2jira.UnableToParseFileException;
 import de.adesso.excel2jira.excel.domain.Issue;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
