@@ -61,7 +61,7 @@ public class MainController implements ApplicationRunner {
         try {
             issues = ExcelMapper.map(filepath);
         } catch (UnableToParseFileException e){
-            logger.error(String.format("File %s not found!", filepath));
+            logger.error(e.getMessage());
             return;
         }
 
