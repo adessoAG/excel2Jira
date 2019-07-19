@@ -2,8 +2,8 @@ package de.adesso.excel2jira.jira;
 
 import de.adesso.excel2jira.jira.domain.JiraIssueListWrapper;
 import de.adesso.excel2jira.jira.domain.Priority;
-import de.adesso.excel2jira.jira.domain.project.Project;
 import de.adesso.excel2jira.jira.domain.User;
+import de.adesso.excel2jira.jira.domain.project.Project;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 

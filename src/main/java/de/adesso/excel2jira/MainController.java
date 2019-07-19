@@ -18,12 +18,15 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.Console;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+/**
+ * Contains the main logic for the app.
+ */
 @Component
 public class MainController implements ApplicationRunner {
 
@@ -34,24 +37,7 @@ public class MainController implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-
-        if (args.getNonOptionArgs().contains("help")) {
-            logHelp();
-            return;
-        }
-        if (!args.containsOption("file")) {
-            logger.error("No filepath specified in command line arguments.");
-            logHelp();
-            return;
-        }
-        if(!args.containsOption("username")){
-            logger.error("No username specified in command line arguments.");
-            logHelp();
-            return;
-        }
-        if(!args.containsOption("url")){
-            logger.error("No url specified in command line arguments.");
-            logHelp();
+        if(!checkArguments(args)){
             return;
         }
 
@@ -61,8 +47,7 @@ public class MainController implements ApplicationRunner {
         URI determinedBasePathUri = URI.create("https://" + url + "/rest/api/2/");
 
         System.out.print("Please enter your JIRA account password: ");
-        Console console = System.console();
-        String password = new String(console.readPassword());
+        String password = new String(System.console().readPassword());
 
         //Map xlsx file to a List of Issues
         List<Issue> issues;
@@ -73,17 +58,11 @@ public class MainController implements ApplicationRunner {
             return;
         }
 
-        if(args.containsOption("fixVersions")) {
-            List<String> versions = new ArrayList<>(Arrays.asList(args.getOptionValues("fixVersions").get(0).split(",")));
-            versions.replaceAll(String::trim);
-            for (Issue issue : issues) {
-                issue.getFixVersions().addAll(versions);
-            }
+        for (Issue issue : issues) {
+            issue.getFixVersions().addAll(getFixVersionsFromArgs(args));
         }
 
-        //Get the available projects for the user
-        String usernameAndPassword = username + ":" + password;
-        String auth = "Basic " + new String(Base64.encodeBase64(usernameAndPassword.getBytes()));
+        String auth = generateBasicAuthToken(username, password);
 
         List<JiraIssue> jiraIssues;
         try {
@@ -109,6 +88,62 @@ public class MainController implements ApplicationRunner {
         }
     }
 
+    /**
+     *
+     * @param username The JIRA username.
+     * @param password The JIRA password.
+     * @return A basic auth base64 encoded token.
+     */
+    private String generateBasicAuthToken(String username, String password) {
+        return  "Basic " + new String(Base64.encodeBase64((username + ":" + password).getBytes()));
+    }
+
+    /**
+     * Returns a list of String from the "-fixVersions" option of the command line arguments.
+     * @param args The command line arguments.
+     * @return A list of Strings containing fixVersions.
+     */
+    private Collection<? extends String> getFixVersionsFromArgs(ApplicationArguments args) {
+        if(args.containsOption("fixVersions")) {
+            List<String> versions = new ArrayList<>(Arrays.asList(args.getOptionValues("fixVersions").get(0).split(",")));
+            versions.replaceAll(String::trim);
+            return versions;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Checks for the presence of all of the command line arguments.
+     * @param args The arguments to check.
+     * @return true if all required arguments are present, false otherwise
+     */
+    private boolean checkArguments(ApplicationArguments args) {
+        if (args.getNonOptionArgs().contains("help")) {
+            logHelp();
+            return false;
+        }
+        if (!args.containsOption("file")) {
+            logger.error("No filepath specified in command line arguments.");
+            logHelp();
+            return false;
+        }
+        if(!args.containsOption("username")){
+            logger.error("No username specified in command line arguments.");
+            logHelp();
+            return false;
+        }
+        if(!args.containsOption("url")){
+            logger.error("No url specified in command line arguments.");
+            logHelp();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Prints usage information for the app to the log.
+     */
     private void logHelp(){
         logger.info("\nUsage:\n" +
                 "--file=\"filename.xlsx\"               The Excel sheet to parse\n" +
