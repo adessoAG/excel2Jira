@@ -20,4 +20,9 @@ public class Issue {
     private List<String> fixVersions = new ArrayList<>();
     private String description;
     private List<String> labels = new ArrayList<>();
+
+    public String toString(){
+        return String.format("[ %s ] [ %s ] [ %s ] [ %s ] [ %s ]", getProjectName(), getSummary(), getIssueType(), getPriority(), getAssignee());
+
+    }
 }
