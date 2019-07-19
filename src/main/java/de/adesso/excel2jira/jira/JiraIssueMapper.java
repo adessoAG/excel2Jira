@@ -3,8 +3,12 @@ package de.adesso.excel2jira.jira;
 import de.adesso.excel2jira.UnableToMapIssueException;
 import de.adesso.excel2jira.excel.domain.Issue;
 import de.adesso.excel2jira.jira.domain.*;
+import de.adesso.excel2jira.jira.domain.project.FixVersion;
+import de.adesso.excel2jira.jira.domain.project.IssueType;
+import de.adesso.excel2jira.jira.domain.project.Project;
 import feign.FeignException;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +29,7 @@ public class JiraIssueMapper {
      * @return A list of JiraIssue objects, that can be directly uploaded to JIRA.
      * @throws UnableToMapIssueException Thrown if an error occurs during the mapping. (Name does not map to id)
      */
-    public static List<JiraIssue> map(JiraClient jiraClient, List<Issue> issues, List<Project> projects, List<Priority> priorities, String auth) throws UnableToMapIssueException {
+    public static List<JiraIssue> map(URI url, JiraClient jiraClient, List<Issue> issues, List<Project> projects, List<Priority> priorities, String auth) throws UnableToMapIssueException {
         List<JiraIssue> resultList = new ArrayList<>();
         for(Issue issue : issues){
             JiraIssue jiraIssue = new JiraIssue();
@@ -33,7 +37,7 @@ public class JiraIssueMapper {
             Project issueProject = null;
             for(Project project : projects){
                 if(project.getName().equals(projectName)){
-                    issueProject = jiraClient.getProject(auth, project.getId());
+                    issueProject = jiraClient.getProject(url, auth, project.getId());
                     break;
                 }
             }
@@ -50,7 +54,7 @@ public class JiraIssueMapper {
 
             //Set assignee
             try {
-                jiraIssue.setAssignee(jiraClient.getUser(auth, issue.getAssignee()).getKey());
+                jiraIssue.setAssignee(jiraClient.getUser(url, auth, issue.getAssignee()).getKey());
             } catch (FeignException.NotFound e){
                 jiraIssue.setAssignee(null);
             }

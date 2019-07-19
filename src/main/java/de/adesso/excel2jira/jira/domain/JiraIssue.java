@@ -6,6 +6,10 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * This class maps directly to the JSON that JIRA expects for creating an Issue.
+ * It is serialized by {@link JiraIssueJsonSerializer}
+ */
 @Data
 @JsonSerialize(using = JiraIssueJsonSerializer.class)
 public class JiraIssue {

@@ -7,6 +7,10 @@ import de.adesso.excel2jira.jira.domain.JiraIssue;
 
 import java.io.IOException;
 
+/**
+ * Serializes a JiraIssue object to the proper JSON format required by JIRA.
+ * https://docs.atlassian.com/software/jira/docs/api/REST/8.1.2/#api/2/issue
+ */
 public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
 
     @Override

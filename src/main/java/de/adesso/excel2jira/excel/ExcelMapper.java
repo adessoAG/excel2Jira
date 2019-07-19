@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Reads an Excel table and maps it to a List o {@link Issue} objects
+ */
 public class ExcelMapper {
 
     /**
@@ -23,7 +26,7 @@ public class ExcelMapper {
      * @param filename path of the file to parse
      * @return list of issue objects that will be uploaded in jira
      */
-    public static List<Issue> map(String filename) {
+    public static List<Issue> map(String filename) throws UnableToParseFileException {
         List<Issue> issues = new ArrayList<>();
 
         try {
@@ -41,13 +44,13 @@ public class ExcelMapper {
                 int firstCellNum = row.getFirstCellNum();
                 Issue issue = new Issue();
 
-                issue.setProjectName(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
-                issue.setSummary(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
-                issue.setIssueType(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
-                issue.setPriority(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
-                issue.setAssignee(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setProjectName(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
+                issue.setSummary(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
+                issue.setIssueType(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
+                issue.setPriority(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
+                issue.setAssignee(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
                 issue.setFixVersions(getListFromString(dataFormatter.formatCellValue(row.getCell(firstCellNum++))));
-                issue.setDescription(dataFormatter.formatCellValue(row.getCell(firstCellNum++)));
+                issue.setDescription(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
                 issue.setLabels(getListFromString(dataFormatter.formatCellValue(row.getCell(firstCellNum))));
 
                 issues.add(issue);

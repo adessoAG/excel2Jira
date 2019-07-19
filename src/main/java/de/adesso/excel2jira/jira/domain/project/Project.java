@@ -1,4 +1,4 @@
-package de.adesso.excel2jira.jira.domain;
+package de.adesso.excel2jira.jira.domain.project;
 
 import lombok.Data;
 

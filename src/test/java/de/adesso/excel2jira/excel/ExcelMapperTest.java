@@ -21,7 +21,7 @@ public class ExcelMapperTest {
         Issue secondIssue = issues.get(1);
         Issue thirdIssue = issues.get(2);
 
-        Assertions.assertThat(firstIssue.getPriority()).isEqualTo("4711");
+        Assertions.assertThat(firstIssue.getPriority()).isEqualTo("3 - leicht umgehbar");
         Assertions.assertThat(firstIssue.getLabels()).hasSize(3);
         Assertions.assertThat(secondIssue.getLabels()).hasSize(2);
         Assertions.assertThat(thirdIssue.getLabels()).hasSize(1);
