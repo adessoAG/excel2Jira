@@ -33,20 +33,29 @@ public class MainController implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
+
+        if (args.getNonOptionArgs().contains("help")) {
+            logHelp();
+            return;
+        }
         if (!args.containsOption("file")) {
             logger.error("No filepath specified in command line arguments.");
+            logHelp();
             return;
         }
         if(!args.containsOption("username")){
             logger.error("No username specified in command line arguments.");
+            logHelp();
             return;
         }
         if(!args.containsOption("password")){
             logger.error("No password specified in command line arguments.");
+            logHelp();
             return;
         }
         if(!args.containsOption("url")){
             logger.error("No url specified in command line arguments.");
+            logHelp();
             return;
         }
 
@@ -105,5 +114,14 @@ public class MainController implements ApplicationRunner {
                 logger.error("Aborting! No issues have been created!");
             }
         }
+    }
+
+    private void logHelp(){
+        logger.info("\nUsage:\n" +
+                "--file=\"filename.xlsx\"               The Excel sheet to parse\n" +
+                "--username=\"user\"                    The JIRA account username\n" +
+                "--password=\"pass\"                    The JIRA account password\n" +
+                "--url=\"jira.company.domain\"          The JIRA server top level domain\n" +
+                "--fixVersions=\"version1, version2\"   A comma-separated list of fix versions\n");
     }
 }

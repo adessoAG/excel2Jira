@@ -23,6 +23,5 @@ public class Issue {
 
     public String toString(){
         return String.format("[ %s ] [ %s ] [ %s ] [ %s ] [ %s ]", getProjectName(), getSummary(), getIssueType(), getPriority(), getAssignee());
-
     }
 }

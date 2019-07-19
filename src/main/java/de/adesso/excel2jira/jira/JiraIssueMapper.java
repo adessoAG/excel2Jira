@@ -13,11 +13,15 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class JiraIssueMapper {
 
     private static Logger logger = LoggerFactory.getLogger(JiraIssueMapper.class);
+
+    private static HashMap<String, Project> cachedProjects = new HashMap<>();
+    private static List<String> cachedUsers = new ArrayList<>();
 
     /**
      * Private constructor to hide the default constructor
@@ -41,8 +45,13 @@ public class JiraIssueMapper {
             String projectName = issue.getProjectName();
             Project issueProject = null;
             for(Project project : projects){
-                if(project.getName().equals(projectName)){
-                    issueProject = jiraClient.getProject(url, auth, project.getId());
+                if(project.getName().equals(projectName)) {
+                    if (cachedProjects.containsKey(projectName)) {
+                        issueProject = cachedProjects.get(projectName);
+                    } else {
+                        issueProject = jiraClient.getProject(url, auth, project.getId());
+                        cachedProjects.put(issueProject.getName(), issueProject);
+                    }
                     break;
                 }
             }
@@ -62,7 +71,12 @@ public class JiraIssueMapper {
                 jiraIssue.setAssignee(null);
             }else{
                 try {
-                    jiraIssue.setAssignee(jiraClient.getUser(url, auth, issue.getAssignee()).getKey());
+                    if(cachedUsers.contains(issue.getAssignee())){
+                        jiraIssue.setAssignee(issue.getAssignee());
+                    }else{
+                        jiraIssue.setAssignee(jiraClient.getUser(url, auth, issue.getAssignee()).getKey());
+                        cachedUsers.add(jiraIssue.getAssignee());
+                    }
                 } catch (FeignException.NotFound e) {
                     throw new UnableToMapIssueException("No user with name " + issue.getAssignee() + " found!", issue);
                 }

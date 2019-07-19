@@ -36,7 +36,7 @@ public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
         gen.writeStringField("id", String.valueOf(value.getIssueType()));
         gen.writeEndObject();
 
-        if(value.getAssignee() == null) {
+        if(value.getAssignee() != null) {
             gen.writeFieldName("assignee");
             gen.writeStartObject();
             gen.writeStringField("name", value.getAssignee());

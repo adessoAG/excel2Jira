@@ -89,7 +89,7 @@ public class ExcelMapper {
             workbook.close();
             return issues;
         } catch (IOException | IllegalStateException e) {
-            throw new UnableToParseFileException(String.format("File %s not found!", filename));
+            throw new UnableToParseFileException(String.format("File %s not found or is in use by another process!", filename));
         }
     }
 
