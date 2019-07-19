@@ -17,6 +17,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.Console;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +42,6 @@ public class MainController implements ApplicationRunner {
             logger.error("No username specified in command line arguments.");
             return;
         }
-        if(!args.containsOption("password")){
-            logger.error("No password specified in command line arguments.");
-            return;
-        }
         if(!args.containsOption("url")){
             logger.error("No url specified in command line arguments.");
             return;
@@ -53,8 +50,11 @@ public class MainController implements ApplicationRunner {
         String filepath = args.getOptionValues("file").get(0);
         String url = args.getOptionValues("url").get(0);
         String username = args.getOptionValues("username").get(0);
-        String password = args.getOptionValues("password").get(0);
         URI determinedBasePathUri = URI.create("https://" + url + "/rest/api/2/");
+
+        System.out.print("Please enter your JIRA account password: ");
+        Console console = System.console();
+        String password = new String(console.readPassword());
 
         //Map xlsx file to a List of Issues
         List<Issue> issues;
