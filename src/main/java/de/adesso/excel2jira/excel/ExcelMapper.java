@@ -44,11 +44,41 @@ public class ExcelMapper {
                 int firstCellNum = row.getFirstCellNum();
                 Issue issue = new Issue();
 
-                issue.setProjectName(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
-                issue.setSummary(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
-                issue.setIssueType(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
-                issue.setPriority(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
-                issue.setAssignee(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
+                String projectName = dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim();
+                if (projectName.isEmpty()) {
+                    throw new UnableToParseFileException(String.format("Project name in row %d must not be empty!", row.getRowNum() + 1));
+                } else {
+                    issue.setProjectName(projectName);
+                }
+
+                String summary = dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim();
+                if (summary.isEmpty()) {
+                    throw new UnableToParseFileException(String.format("Summary in row %d must not be empty!", row.getRowNum() + 1));
+                } else {
+                    issue.setSummary(summary);
+                }
+
+                String issueType = dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim();
+                if (issueType.isEmpty()) {
+                    throw new UnableToParseFileException(String.format("Issue type in row %d must not be empty!", row.getRowNum() + 1));
+                } else {
+                    issue.setIssueType(issueType);
+                }
+
+                String priority = dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim();
+                if (priority.isEmpty()) {
+                    throw new UnableToParseFileException(String.format("Priority in row %d must not be empty!", row.getRowNum() + 1));
+                } else {
+                    issue.setPriority(priority);
+                }
+
+                String assignee = dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim();
+                if (assignee.isEmpty()) {
+                    throw new UnableToParseFileException(String.format("Assignee in row %d must not be empty!", row.getRowNum() + 1));
+                } else {
+                    issue.setAssignee(assignee);
+                }
+
                 issue.setFixVersions(getListFromString(dataFormatter.formatCellValue(row.getCell(firstCellNum++))));
                 issue.setDescription(dataFormatter.formatCellValue(row.getCell(firstCellNum++)).trim());
                 issue.setLabels(getListFromString(dataFormatter.formatCellValue(row.getCell(firstCellNum))));
@@ -59,7 +89,7 @@ public class ExcelMapper {
             workbook.close();
             return issues;
         } catch (IOException | IllegalStateException e) {
-            throw new UnableToParseFileException(e.getMessage());
+            throw new UnableToParseFileException(String.format("File %s not found!", filename));
         }
     }
 
