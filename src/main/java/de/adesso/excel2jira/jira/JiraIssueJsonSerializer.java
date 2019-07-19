@@ -36,7 +36,7 @@ public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
         gen.writeStringField("id", String.valueOf(value.getIssueType()));
         gen.writeEndObject();
 
-        if(value.getAssignee() != null) {
+        if(value.getAssignee() == null) {
             gen.writeFieldName("assignee");
             gen.writeStartObject();
             gen.writeStringField("name", value.getAssignee());
@@ -48,10 +48,11 @@ public class JiraIssueJsonSerializer extends JsonSerializer<JiraIssue> {
         gen.writeStringField("id", String.valueOf(value.getPriority()));
         gen.writeEndObject();
 
-        //customfield_10321
-        gen.writeObjectField("customfield_10321", value.getLabels());
-        //gen.writeObjectField("labels", value.getLabels());
+        gen.writeStringField("description", value.getDescription());
 
+        if(value.getLabels() != null && !value.getLabels().isEmpty()) {
+            gen.writeObjectField("labels", value.getLabels());
+        }
         gen.writeFieldName("fixVersions");
         gen.writeStartArray();
         for(Long fixVersion : value.getVersions()){

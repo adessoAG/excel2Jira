@@ -2,17 +2,22 @@ package de.adesso.excel2jira.jira;
 
 import de.adesso.excel2jira.UnableToMapIssueException;
 import de.adesso.excel2jira.excel.domain.Issue;
-import de.adesso.excel2jira.jira.domain.*;
+import de.adesso.excel2jira.jira.domain.JiraIssue;
+import de.adesso.excel2jira.jira.domain.Priority;
 import de.adesso.excel2jira.jira.domain.project.FixVersion;
 import de.adesso.excel2jira.jira.domain.project.IssueType;
 import de.adesso.excel2jira.jira.domain.project.Project;
 import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JiraIssueMapper {
+
+    private static Logger logger = LoggerFactory.getLogger(JiraIssueMapper.class);
 
     /**
      * Private constructor to hide the default constructor
@@ -42,22 +47,27 @@ public class JiraIssueMapper {
                 }
             }
             if(issueProject == null){
-                throw new UnableToMapIssueException("No project with name " + issue.getProjectName() + " found!");
+                throw new UnableToMapIssueException("No project with name " + issue.getProjectName() + " found!", issue);
             }
             jiraIssue.setProjectId(issueProject.getId());
             jiraIssue.setDescription(issue.getDescription());
-            jiraIssue.setIssueType(getIssueType(issue.getIssueType(), issueProject));
-            jiraIssue.setVersions(getFixVersions(issue.getFixVersions(), issueProject));
-            jiraIssue.setPriority(getPriorities(issue.getPriority(), priorities));
+            jiraIssue.setIssueType(getIssueType(issue, issueProject));
+            jiraIssue.setVersions(getFixVersions(issue, issueProject));
+            jiraIssue.setPriority(getPriorities(issue, priorities));
             jiraIssue.setLabels(issue.getLabels());
             jiraIssue.setSummary(issue.getSummary());
 
             //Set assignee
-            try {
-                jiraIssue.setAssignee(jiraClient.getUser(url, auth, issue.getAssignee()).getKey());
-            } catch (FeignException.NotFound e){
+            if(issue.getAssignee().equals("Nicht zugewiesen") || issue.getAssignee().equals("Not assigned")) {
                 jiraIssue.setAssignee(null);
+            }else{
+                try {
+                    jiraIssue.setAssignee(jiraClient.getUser(url, auth, issue.getAssignee()).getKey());
+                } catch (FeignException.NotFound e) {
+                    throw new UnableToMapIssueException("No user with name " + issue.getAssignee() + " found!", issue);
+                }
             }
+            logger.info(String.format("Item: %s processed successfully", issue.toString()));
             resultList.add(jiraIssue);
         }
         return resultList;
@@ -65,30 +75,30 @@ public class JiraIssueMapper {
 
     /**
      * Maps a priority name to it's id on the JIRA server.
-     * @param priorityName The name of the priority.
+     * @param issue The issue to check.
      * @param priorities A list of available priorities.
      * @return The id corresponding to the name.
      * @throws UnableToMapIssueException Thrown if the name cannot be mapped to an id.
      */
-    private static Long getPriorities(String priorityName, List<Priority> priorities) throws UnableToMapIssueException {
+    private static Long getPriorities(Issue issue, List<Priority> priorities) throws UnableToMapIssueException {
         for(Priority priority : priorities){
-            if(priorityName.equals(priority.getName())){
+            if(issue.getPriority().equals(priority.getName())){
                 return priority.getId();
             }
         }
-        throw new UnableToMapIssueException("No priority with name " +priorityName + " found");
+        throw new UnableToMapIssueException("No priority with name " +issue.getPriority() + " found", issue);
     }
 
     /**
      * Maps a list of fixVersion names to their corresponding ids on the jira server.
-     * @param fixVersions The names of the fix versions.
+     * @param issue The issue to check.
      * @param issueProject The project to look in.
      * @return A list of fixVersion ids.
      * @throws UnableToMapIssueException Thrown if a fixVersion is not found.
      */
-    private static List<Long> getFixVersions(List<String> fixVersions, Project issueProject) throws UnableToMapIssueException {
+    private static List<Long> getFixVersions(Issue issue, Project issueProject) throws UnableToMapIssueException {
         List<Long> fixVersionIds = new ArrayList<>();
-        for(String fixVersionString : fixVersions){
+        for(String fixVersionString : issue.getFixVersions()){
             boolean fixVersionFound = false;
             for(FixVersion fixVersion : issueProject.getVersions()){
                 if(fixVersion.getName().equals(fixVersionString)){
@@ -98,7 +108,7 @@ public class JiraIssueMapper {
                 }
             }
             if(!fixVersionFound){
-                throw new UnableToMapIssueException("No fixVersion with name " + fixVersionString + " found in project " + issueProject.getName());
+                throw new UnableToMapIssueException("No fixVersion with name " + fixVersionString + " found in project " + issueProject.getName(), issue);
             }
         }
         return fixVersionIds;
@@ -106,17 +116,17 @@ public class JiraIssueMapper {
 
     /**
      * Return The id of the issue type corresponding to the issue type name.
-     * @param issueTypeName The name of the issue type, whose ID we need.
+     * @param issue The issue to check.
      * @param project The project to look in.
      * @return The id of the issue type.
      * @throws UnableToMapIssueException Thrown if the issue type is not found.
      */
-    private static Long getIssueType(String issueTypeName, Project project) throws UnableToMapIssueException {
+    private static Long getIssueType(Issue issue, Project project) throws UnableToMapIssueException {
         for(IssueType issueType : project.getIssueTypes()){
-            if (issueType.getName().equals(issueTypeName)) {
+            if (issueType.getName().equals(issue.getIssueType())) {
                 return issueType.getId();
             }
         }
-        throw new UnableToMapIssueException("No issueType with name " + issueTypeName + " found in project " + project.getName());
+        throw new UnableToMapIssueException("No issueType with name " + issue.getIssueType() + " found in project " + project.getName(), issue);
     }
 }

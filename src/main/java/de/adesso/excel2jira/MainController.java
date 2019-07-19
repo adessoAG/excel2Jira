@@ -90,11 +90,20 @@ public class MainController implements ApplicationRunner {
         try {
             jiraIssues = JiraIssueMapper.map(determinedBasePathUri, jiraClient, issues, projects,priorities, auth);
         }catch (UnableToMapIssueException e){
-            logger.error(e.getMessage());
+            logger.error(String.format("Error processing item: %s Error is: %s", e.getIssue().toString(), e.getMessage()));
+            logger.error("Aborting! No issues have been created!");
             return;
         }
 
         //Send the issues off to JIRA
-        jiraClient.createIssues(determinedBasePathUri, auth, new JiraIssueListWrapper(jiraIssues));
+        try {
+            jiraClient.createIssues(determinedBasePathUri, auth, new JiraIssueListWrapper(jiraIssues));
+            logger.error("All issues successfully created!");
+        } catch (FeignException.BadRequest e){
+            if(e.contentUTF8().contains("labels")){
+                logger.error("The server does not support creating labels! Please remove the labels and try again!");
+                logger.error("Aborting! No issues have been created!");
+            }
+        }
     }
 }
