@@ -148,6 +148,6 @@ public class MainController implements ApplicationRunner {
                 "--file=\"filename.xlsx\"               The Excel sheet to parse\n" +
                 "--username=\"user\"                    The JIRA account username\n" +
                 "--url=\"jira.company.domain\"          The JIRA server top level domain\n" +
-                "--fixVersions=\"version1, version2\"   A comma-separated list of fix versions\n");
+                "--fixVersions=\"version1, version2\"   A comma-separated list of fix versions (optional)\n");
     }
 }
