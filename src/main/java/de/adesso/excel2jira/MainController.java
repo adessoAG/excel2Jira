@@ -60,6 +60,7 @@ public class MainController implements ApplicationRunner {
 
         for (Issue issue : issues) {
             issue.getFixVersions().addAll(getFixVersionsFromArgs(args));
+            issue.getLabels().addAll(getLabelsFromArgs(args));
         }
 
         String auth = generateBasicAuthToken(username, password);
@@ -78,7 +79,7 @@ public class MainController implements ApplicationRunner {
         //Send the issues off to JIRA
         try {
             jiraClient.createIssues(determinedBasePathUri, auth, new JiraIssueListWrapper(jiraIssues));
-            logger.error("All issues successfully created!");
+            logger.info("All issues successfully created!");
         } catch (FeignException.BadRequest e){
             if(e.contentUTF8().contains("labels")){
                 logger.error("The server does not support creating labels! Please remove the labels and try again!");
@@ -98,7 +99,7 @@ public class MainController implements ApplicationRunner {
     }
 
     /**
-     * Returns a list of String from the "-fixVersions" option of the command line arguments.
+     * Returns a list of String from the "--fixVersions" option of the command line arguments.
      * @param args The command line arguments.
      * @return A list of Strings containing fixVersions.
      */
@@ -107,6 +108,22 @@ public class MainController implements ApplicationRunner {
             List<String> versions = new ArrayList<>(Arrays.asList(args.getOptionValues("fixVersions").get(0).split(",")));
             versions.replaceAll(String::trim);
             return versions;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+
+    /**
+     * Returns a list of String from the "--labels" option of the command line arguments.
+     * @param args The command line arguments.
+     * @return A list of Strings containing labels.
+     */
+    private Collection<? extends String> getLabelsFromArgs(ApplicationArguments args) {
+        if(args.containsOption("labels")) {
+            List<String> labels = new ArrayList<>(Arrays.asList(args.getOptionValues("labels").get(0).split(",")));
+            labels.replaceAll(String::trim);
+            return labels;
         } else {
             return new ArrayList<>();
         }
@@ -148,6 +165,7 @@ public class MainController implements ApplicationRunner {
                 "--file=\"filename.xlsx\"               The Excel sheet to parse\n" +
                 "--username=\"user\"                    The JIRA account username\n" +
                 "--url=\"jira.company.domain\"          The JIRA server top level domain\n" +
+                "--labels=\"label1, label2\"            A comma-separated list of labels (optional)\n" +
                 "--fixVersions=\"version1, version2\"   A comma-separated list of fix versions (optional)\n");
     }
 }
