@@ -1,5 +1,7 @@
 # excel2Jira
 
+[![Build Status](https://travis-ci.org/adessoAG/excel2Jira.svg?branch=master)](https://travis-ci.org/adessoAG/excel2Jira)
+
 The tool reads issues from an Excel spreadsheet and posts them to JIRA.
 
 ### Usage
