@@ -6,7 +6,7 @@ import lombok.Getter;
 public class UnableToMapIssueException extends Exception {
 
     @Getter
-    private Issue issue;
+    private final Issue issue;
 
     public UnableToMapIssueException(String s, Issue issue) {
         super(s);

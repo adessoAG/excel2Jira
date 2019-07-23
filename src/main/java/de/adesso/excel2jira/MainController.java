@@ -63,7 +63,6 @@ public class MainController implements ApplicationRunner {
         }
 
         String auth = generateBasicAuthToken(username, password);
-
         List<JiraIssue> jiraIssues;
         try {
             jiraIssues = JiraIssueMapper.map(determinedBasePathUri, jiraClient, issues, auth);

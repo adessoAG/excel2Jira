@@ -3,6 +3,7 @@ package de.adesso.excel2jira.excel.domain;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class Issue {
+public class Issue implements Serializable {
     private String projectName;
     private String summary;
     private String issueType;
