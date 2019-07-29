@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Reads an Excel table and maps it to a List o {@link Issue} objects
+ * Reads an Excel table and maps it to a List of {@link Issue} objects
  */
 public class ExcelMapper {
 
